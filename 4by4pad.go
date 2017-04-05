@@ -9,11 +9,11 @@ import (
 	edio "github.com/PaulB2Code/edison-gpio"
 )
 
-var row_out = [4]int{43, 41, 129, 128} // Give GP Value
-var column_in = [4]int{40, 42, 12, 13} // Give GP Value
+var row_out_default = [4]int{43, 41, 129, 128} // Give GP Value
+var column_in_default = [4]int{40, 42, 12, 13} // Give GP Value
 
 //Give the Key of the Key Pad
-var keys = [4][4]string{
+var keys_default = [4][4]string{
 	{"1", "2", "3", "A"},
 	{"4", "5", "6", "B"},
 	{"7", "8", "9", "C"},
@@ -27,11 +27,14 @@ func (kp *Keypad) Close() {
 }
 
 type Keypad struct {
-	Reading bool
-	Lock    sync.RWMutex
+	Reading   bool
+	Lock      sync.RWMutex
+	row_out   [4]int
+	column_in [4]int
+	keys      [4][4]string
 }
 
-func New() (Keypad, error) {
+func New(row_out [4]int, column_in [4]int, keys [4][4]string) (Keypad, error) {
 	//Index Ouput to High Value
 	for _, val := range row_out {
 		rowPin = append(rowPin, val)
@@ -48,14 +51,14 @@ func New() (Keypad, error) {
 
 		//colPin[i].PullDown()
 	}
-	return Keypad{}, nil
+	return Keypad{row_out: row_out, column_in: column_in, keys: keys}, nil
 }
 
-func getLetter(row int, col int) (string, error) {
-	if len(keys) < row || len(keys) < col {
+func (kp *Keypad) getLetter(row int, col int) (string, error) {
+	if len(kp.keys) < row || len(kp.keys) < col {
 		return "", errors.New(fmt.Sprintf("No data for row %v and col %v", row, col))
 	}
-	val := keys[row][col]
+	val := kp.keys[row][col]
 
 	return val, nil
 }
@@ -123,7 +126,7 @@ func (kp *Keypad) GetValueWithColumn(i int) (string, error) {
 	return "", errors.New("Error Reading second number")
 endblock:
 
-	letter, err := getLetter(rowId, i)
+	letter, err := kp.getLetter(rowId, i)
 	if err != nil {
 		return "", err
 	}

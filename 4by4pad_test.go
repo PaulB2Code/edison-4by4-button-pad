@@ -8,10 +8,19 @@ import (
 	"time"
 )
 
+var row_out = [4]int{43, 41, 40, 42}   // Give GP Value
+var column_in = [4]int{14, 15, 49, 48} // Give GP Value
+
+var keys = [4][4]string{
+	{"D", "C", "B", "A"},
+	{"#", "9", "6", "3"},
+	{"0", "8", "5", "2"},
+	{"*", "7", "4", "1"}}
+
 func TestClikedLetter(t *testing.T) {
 	log.Println("Start Read Key Value Programm")
 
-	kp, err := New()
+	kp, err := New(row_out, column_in, keys)
 	if err != nil {
 		log.Panic("[ERROR - FATAL], Impossible de démarrer, ", err)
 	}
